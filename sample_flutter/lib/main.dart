@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:quiver/async.dart';
+import 'package:sample_flutter/egg_timer_page.dart';
+import 'dart:async';
+import 'clock.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,13 +19,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         // actionBar、floatingActionButtonの色変更ができる
         // colors.dartに定義してある
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.orange,
         // おまじない？
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       // actionBarに表示するタイトル文言
       // homeは、アプリ起動時に表示するWidgetを設定します
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Boiled Egg Timer'),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -40,13 +45,28 @@ class MyHomePage extends StatefulWidget {
 
 /// カウントアップ処理
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  // ②カウントを示すインスタンス変数
+  int _current = 0;
 
-  void _incrementCounter() {
-    // setStateはStateの状態を更新するメソッドになります。
-    // 引数の関数を実行した後、Stateのbuildを実行しなおします。
-    setState(() {
-      _counter++;
+  // ③ カウントダウン処理を行う関数を定義
+  void startTimer(boilTime) {
+    CountdownTimer countDownTimer = new CountdownTimer(
+      new Duration(seconds: boilTime), //初期値
+      new Duration(seconds: 1), // 減らす幅
+    );
+
+    var sub = countDownTimer.listen(null);
+    sub.onData((duration) {
+      setState(() {
+        _current = boilTime - duration.elapsed.inSeconds; //毎秒減らしていく
+      });
+    });
+
+    // ④終了時の処理
+    sub.onDone(() {
+      print("Done");
+      sub.cancel();
+      _current = boilTime;
     });
   }
 
@@ -59,31 +79,46 @@ class _MyHomePageState extends State<MyHomePage> {
         // 28行目のインスタンス化のときに引数でわたしている
         // 21行目　home: MyHomePage(title: 'Flutter Demo Home Page')
         // ここでタイトルを変更すると、21行目よりも55行目の文言が上書きされる
-        title: Text(widget.title),
+        title: Text(widget.title, style: TextStyle(color: Colors.white)),
       ),
-      // Center = 中央揃えになる
-      // 詳細は「flutter Widget catalog」を参照
-      body: Center(
-        // Columnは列なので縦にウィジェットが並ぶ、rowは行なので横一列に並ぶ
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+            Row(
+              children: <Widget>[
+                GestureDetector(
+                    onTap: () {
+                      startTimer(6000);
+                    },
+                    child: Image.asset(
+                      "images/egg_yudetamago.png",
+                      width: 200.0,
+                      height: 200.0,
+                    )),
+                GestureDetector(
+                    onTap: () {
+                      startTimer(4500);
+                    },
+                    child: Image.asset(
+                      "images/egg_yudetamago_hanjuku.png",
+                      width: 200.0,
+                      height: 200.0,
+                    )),
+              ],
             ),
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              'ゆで卵の好みの固さを教えてください',
+            ),
+            Text(
+              "$_current秒",
+              style: Theme.of(context).textTheme.display1,
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        // 42行目のメソッド名
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
