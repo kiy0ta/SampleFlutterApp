@@ -4,10 +4,12 @@ void main() {
   runApp(MyApp());
 }
 
+/// アプリ起動時に呼ばれるクラス
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // マテリアルデザインを使用している
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -18,6 +20,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       // actionBarに表示するタイトル文言
+      // homeは、アプリ起動時に表示するWidgetを設定します
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
